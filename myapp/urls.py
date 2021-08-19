@@ -5,5 +5,6 @@ from . import views
 
 urlpatterns = [
     path('',views.index,name='index'),
+    path('getorder',views.getorder,name='getorder'),
     
 ]
