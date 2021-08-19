@@ -17,8 +17,9 @@ def index(request):
 def getorder(request):
     if request.method=="POST":
         customers=Customer.objects.all(id=request.POST['state_id'])
-        orders=Order.objects.filter(state_id=customers)
-
+        orders=Order.objects.all()
+    else:
+        return redirect('/')
 
 
 

@@ -355,7 +355,8 @@
                     <div class="row d-flex">
                         <div class="col-sm-12 createSegment">
 
-                            <form name="customer" id="form1" action="">
+                            <form name="customer" id="form1" method="POST" action="">
+                                {% csrf_token %}
                                 State: <select name="state" id="state_id">
                                     <option value="{{state.id}}">Select</option>
                                     {% for i in c %}
@@ -375,8 +376,8 @@
                                     {% endfor %}
                                 </select>
                                 <label for="start">Date</label>
-                                <input type="date" id="start" name="date" value="" min="2021-01-01" max="2050-12-31">
-                                <input type="submit" value="Submit">
+                                <input type="date" id="date_id" name="date" value="" min="2021-01-01" max="2050-12-31">
+                                <input type="submit" value="Submit" id="btnedit">
                             </form>
 
                         </div>
@@ -500,6 +501,28 @@
         });
     </script>
 
+
+    <script>
+        $("#btnedit").click(function () {
+            console.log("save button clicked");
+
+            let st = $("#state_id").val()
+            let ct = $("#city_id").val()
+            let em = $("#email_id").val()
+            let dt = $("#date_id").val()
+            console.log(st);
+            console.log(ct);
+            console.log(em);
+            console.log(dt);
+
+            mydata = {
+
+            }
+        });
+    </script>
+
+
+    <!--
     <script>
         // for Auto from select State to all details of Order
         $(document).ready(function () {
@@ -525,7 +548,7 @@
                 });
             });
         });
-    </script>
+    </script>-->
 
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
