@@ -21,8 +21,6 @@
 
     <!--for dropdown-->
 
-
-
     <style>
         body {
             font-family: 'Raleway', sans-serif;
@@ -30,7 +28,7 @@
         }
 
         .p-30 {
-            padding: 30px;
+            padding: 20px;
         }
 
         .main-datatable {
@@ -358,9 +356,9 @@
                             <form name="customer" id="form1" method="POST" action="">
                                 {% csrf_token %}
                                 State: <select name="state" id="state_id">
-                                    <option value="{{state.id}}">Select</option>
-                                    {% for i in c %}
-                                    <option value="{{state.id}}">{{i.state}}</option>
+                                    <option value="state">Select</option>
+                                    {% for i in records %}
+                                    <option value="{{i.state}}">{{i.state}}</option>
                                     {% endfor %}
                                 </select>
                                 City: <select name="city" id="city_id">
@@ -377,7 +375,8 @@
                                 </select>
                                 <label for="start">Date</label>
                                 <input type="date" id="date_id" name="date" value="" min="2021-01-01" max="2050-12-31">
-                                <input type="submit" value="Submit" id="btnedit">
+
+                                <input type="button" class="btn btn-success" id="btnedit" value="Submit">
                             </form>
 
                         </div>
@@ -393,25 +392,30 @@
                         <table style="width:100%;" id="filtertable" class="table cust-datatable dataTable no-footer">
                             <thead>
                                 <tr>
-                                    <th style="min-width:50px;">ID</th>
-                                    <th style="min-width:150px;">First Name</th>
-                                    <th style="min-width:150px;">Date</th>
+
+                                    <th style="min-width:100px;">First Name</th>
+                                    <th style="min-width:100px;">Date</th>
                                     <th style="min-width:100px;">Mobile</th>
                                     <th style="min-width:100px;">State</th>
-                                    <th style="min-width:150px;">City</th>
+                                    <th style="min-width:100px;">City</th>
+                                    <th style="min-width:100px;">Order No.</th>
+                                    <th style="min-width:100px;">Order date</th>
+                                    <th style="min-width:100px;">Order Price</th>
                                     <th style="min-width:150px;">Action</th>
 
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for i in c %}
+                                {% for i in data %}
                                 <tr>
-                                    <td>{{i.id}}</td>
                                     <td>{{i.fname}}</td>
                                     <td><span class="mode mode_process">{{i.date}}</span></td>
                                     <td>{{i.mobile}}</td>
                                     <td>{{i.state}}</td>
                                     <td>{{i.city}}</td>
+                                    <td>{{i.order_number}}</td>
+                                    <td>{{i.order_date}}</td>
+                                    <td>{{i.order_price}}</td>
                                     <td>
                                         <div class="btn-group">
                                             <a class="dropdown-toggle dropdown_icon" data-toggle="dropdown">
@@ -489,6 +493,8 @@
                     null,
                     null,
                     null,
+                    null,
+                    null,
                     null
                 ],
                 "order": false,
@@ -498,57 +504,41 @@
             $("#filterbox").keyup(function () {
                 dataTable.search(this.value).draw();
             });
-        });
-    </script>
 
 
-    <script>
-        $("#btnedit").click(function () {
-            console.log("save button clicked");
 
-            let st = $("#state_id").val()
-            let ct = $("#city_id").val()
-            let em = $("#email_id").val()
-            let dt = $("#date_id").val()
-            console.log(st);
-            console.log(ct);
-            console.log(em);
-            console.log(dt);
-
-            mydata = {
-
-            }
-        });
-    </script>
-
-
-    <!--
-    <script>
-        // for Auto from select State to all details of Order
-        $(document).ready(function () {
             $("#state_id").change(function () {
-                output = "";
-                let id = $(this).val();
+                output = ''
                 $.ajax({
-                    url: "{% url 'getorder' %}",
+                    url: "{% url 'getdata' %}",
                     method: "POST",
                     data: {
-                        'state_id': id
+                        'state': $(this).val()
                     },
                     success: function (resp) {
-                        x = resp.alldetails;
-                        for (i = 0; i < x.length; i++) {
-                            output += `
-                                    <option value="${x[i].id}">${x[i].name}</option>
-                                `;
+                        x = resp.data;
+                        console.log(x);
+                        if (resp.status == 'save') {
+                            for (i = 0; i < x.length; i++) {
+                                output += `
+                                <option value="${x[i].id}">${x[i].fname}</option>
+                            `;
+                            }
+                            $("").html(output);
                         }
-                        $("#city_id").html(output);
+                        if (resp.status == 0) {
+                            console.log("enable to get data ")
+                        }
                     }
-
                 });
+
+            });
+
+            $("#btnedit").click(function () {
+
             });
         });
-    </script>-->
+    </script>
 
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>

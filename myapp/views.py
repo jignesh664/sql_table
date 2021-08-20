@@ -1,40 +1,62 @@
+from django.db.models import query
 from django.shortcuts import render,redirect
 from .models import Customer,Product,Order
 from django.http.response import Http404, HttpResponse, JsonResponse
 
 from django.views.decorators.csrf import csrf_exempt
+from django.db import connection
+from django.core.serializers import serialize
+
+
+
+
 
 # Create your views here.
+
+# for connect db
+def runsql(q):
+    cursor=connection.cursor()
+    cursor.execute(q)
+    if(cursor.description != None):
+        columns=[col[0] for col in cursor.description] 
+        return[
+            dict(zip(columns,row))
+            for row in cursor.fetchall()
+        ] 
+    else:
+        return True
+
 
 
 def index(request):
     c=Customer.objects.all()
     o=Order.objects.all()
-    params={'c':c,'o':o}
+    # for remove dublicates values 
+    records =Customer.objects.filter().values('state').distinct()
+    params={'c':c,'o':o,'records':records}
     return render (request,'index.html',params)
 
+
+# for using Row Querys
 @csrf_exempt
-def getorder(request):
+def getdata(request):
     if request.method=="POST":
-        customers=Customer.objects.all(id=request.POST['state_id'])
-        orders=Order.objects.all()
+        querys="select * from myapp_customer as c LEFT JOIN myapp_order as o ON c.id=o.id;"
+        data=runsql(querys) 
+        return JsonResponse({'status':'save','data':serialize('json',data)}, safe = False)  
     else:
-        return redirect('/')
+        return JsonResponse({'status':0})
 
 
-
-
-
-'''@csrf_exempt
-def getorder1(request):
+'''for using ORM Quetys
+def getdata(request):
     if request.method=="POST":
-        state=Customer.objects.get(id=request.POST['state_id'])
-        orders=Order.objects.filter(state_id=state.id)
-        alldetails=[]
-        for i in orders:
-            alldetails.append({'name':i.fname,'email':i.email,'mobile':i.mobile,'orderdate':i.order_date,'order_number':i.order_number})
-            return JsonResponse({'alldetails':alldetails})
+        customers=Customer.objects.filter(state=request.POST['state'])
+        #create list of all city data
+        finaldata = []  
+        # for i in orders:
+        #     finaldata.append({'fname': i.fname, 'id': i.id})  
+        return JsonResponse({'status':'save','finaldata':serialize('json', customers)}, safe = False)  
     else:
-        return redirect('/')    '''       
-
-            
+        return JsonResponse({'status':0})'''
+          
