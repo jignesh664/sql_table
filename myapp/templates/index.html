@@ -353,29 +353,28 @@
                     <div class="row d-flex">
                         <div class="col-sm-12 createSegment">
 
-                            <form name="customer" id="form1" method="POST" action="">
+                            <form name="customer" id="form1" method="POST" action="{% url 'getdata' %}">
                                 {% csrf_token %}
-                                State: <select name="state" id="state_id">
+                                State: <select name="state">
                                     <option value="state">Select</option>
                                     {% for i in records %}
-                                    <option value="{{i.state}}">{{i.state}}</option>
+                                    <option value="{{i.state}}" id="state_id">{{i.state}}</option>
                                     {% endfor %}
                                 </select>
-                                City: <select name="city" id="city_id">
-                                    <option value="{{state.id}}">Select</option>
-                                    {% for i in c %}
-                                    <option value="{{city.id}}">{{i.city}}</option>
+                                City: <select name="city">
+                                    <option value="city">Select</option>
+                                    {% for i in citys %}
+                                    <option value="{{i.city}}" id="city_id">{{i.city}}</option>
                                     {% endfor %}
                                 </select>
-                                Email:<select name="email" id="email_id">
-                                    <option value="{{state.id}}">Select</option>
+                                Email:<select name="email">
+                                    <option value="email">Select</option>
                                     {% for i in c %}
-                                    <option value="{{i.email}}">{{i.email}}</option>
+                                    <option value="{{i.email}}" id="email_id">{{i.email}}</option>
                                     {% endfor %}
                                 </select>
                                 <label for="start">Date</label>
-                                <input type="date" id="date_id" name="date" value="" min="2021-01-01" max="2050-12-31">
-
+                                <input type="date" id="date_id" name="date" value="{{i.date}}">
                                 <input type="button" class="btn btn-success" id="btnedit" value="Submit">
                             </form>
 
@@ -394,75 +393,29 @@
                                 <tr>
 
                                     <th style="min-width:100px;">First Name</th>
-                                    <th style="min-width:100px;">Date</th>
                                     <th style="min-width:100px;">Mobile</th>
                                     <th style="min-width:100px;">State</th>
                                     <th style="min-width:100px;">City</th>
                                     <th style="min-width:100px;">Order No.</th>
                                     <th style="min-width:100px;">Order date</th>
                                     <th style="min-width:100px;">Order Price</th>
-                                    <th style="min-width:150px;">Action</th>
+                                    <th style="min-width:100px;">Product Name</th>
+                                    <th style="min-width:100px;">Product Price</th>
 
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="tr">
                                 {% for i in data %}
                                 <tr>
                                     <td>{{i.fname}}</td>
-                                    <td><span class="mode mode_process">{{i.date}}</span></td>
                                     <td>{{i.mobile}}</td>
                                     <td>{{i.state}}</td>
                                     <td>{{i.city}}</td>
                                     <td>{{i.order_number}}</td>
                                     <td>{{i.order_date}}</td>
                                     <td>{{i.order_price}}</td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a class="dropdown-toggle dropdown_icon" data-toggle="dropdown">
-                                                <i class="fa fa-pencil-square-o"></i> </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a href="#" target="_blank">
-                                                        Dummy Details
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" target="_blank">
-                                                        Dummy Details
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" target="_blank">
-                                                        Dummy Details
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <span class="actionCust">
-                                            <a href="#"><i class="fa fa-line-chart"></i></a>
-                                        </span>
-                                        <div class="btn-group">
-                                            <a class="dropdown-toggle dropdown_icon" data-toggle="dropdown">
-                                                <i class="fa fa-ellipsis-h"></i>
-                                            </a>
-                                            <ul class="dropdown-menu dropdown_more">
-                                                <li>
-                                                    <a href="#" target="_black">
-                                                        <i class="fa fa-clone"></i>Duplicate
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" target="_black">
-                                                        <i class="fa fa-trash"></i> Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" target="_black">
-                                                        <i class="fa fa-list"></i>Activity</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
+                                    <td>{{i.product_name}}</td>
+                                    <td>{{i.product_price}}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -487,6 +440,7 @@
                     aTargets: [5]
                 }],
                 "aoColumns": [
+
                     null,
                     null,
                     null,
@@ -507,36 +461,67 @@
 
 
 
-            $("#state_id").change(function () {
+
+            //for filter by 4 Types
+            $("#btnedit").click(function () {
                 output = ''
+                console.log("click")
+
+                let st = $("#state_id").val()
+                console.log(state_id, "state")
+                let ct = $("#city_id").val()
+                console.log(city_id, "city")
+                let em = $("#email_id").val()
+                console.log(email_id, "email")
+                let dt = $("#date_id").val()
+                console.log(date_id, "date")
+
+
+
                 $.ajax({
                     url: "{% url 'getdata' %}",
                     method: "POST",
                     data: {
-                        'state': $(this).val()
+                        'state': st,
+                        'city': ct,
+                        'email': em,
+                        'date': dt
                     },
                     success: function (resp) {
                         x = resp.data;
                         console.log(x);
                         if (resp.status == 'save') {
-                            for (i = 0; i < x.length; i++) {
+                            for (i = 0; i < x
+                                .length; i++) {
                                 output += `
-                                <option value="${x[i].id}">${x[i].fname}</option>
+
+                                <tr>
+                                    <td>${x[i].fname}</td>
+                                    <td>${x[i].mobile}</td>
+                                    <td>${x[i].state}</td>
+                                    <td>${x[i].city}</td>
+                                    <td>${x[i].order_number}</td>
+                                    <td>${x[i].order_date}</td>
+                                    <td>${x[i].order_price}</td>
+                                    <td>${x[i].product_name}</td>
+                                    <td>${x[i].product_price}</td>
+                                </tr>
                             `;
                             }
-                            $("").html(output);
+
+                            $("#tr").html(output);
                         }
                         if (resp.status == 0) {
-                            console.log("enable to get data ")
+                            console.log(
+                                "enable to get data"
+                            )
                         }
                     }
+
+
                 });
+            })
 
-            });
-
-            $("#btnedit").click(function () {
-
-            });
         });
     </script>
 
