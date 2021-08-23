@@ -354,27 +354,21 @@
                         <div class="col-sm-12 createSegment">
 
                             <form name="customer" id="form1" method="POST" action="{% url 'getdata' %}">
-                                {% csrf_token %}
-                                State: <select name="state">
-                                    <option value="state">Select</option>
-                                    {% for i in records %}
-                                    <option value="{{i.state}}" id="state_id">{{i.state}}</option>
-                                    {% endfor %}
-                                </select>
-                                City: <select name="city">
-                                    <option value="city">Select</option>
-                                    {% for i in citys %}
-                                    <option value="{{i.city}}" id="city_id">{{i.city}}</option>
-                                    {% endfor %}
-                                </select>
-                                Email:<select name="email">
-                                    <option value="email">Select</option>
-                                    {% for i in c %}
-                                    <option value="{{i.email}}" id="email_id">{{i.email}}</option>
-                                    {% endfor %}
-                                </select>
-                                <label for="start">Date</label>
-                                <input type="date" id="date_id" name="date" value="{{i.date}}">
+
+                                <h4 style="color: chocolate;">State</h4>
+                                {% for i in records %}
+                                <input type="checkbox" id="scales{{ i }}" class="state" value="{{ i }}" name="state[]">
+                                <label for="scales{{ i }}">{{i}}</label>
+                                {% endfor %}
+
+
+                                <h4 style="color: chocolate;">City</h4>
+
+                                <input type="checkbox" id="citys{{ i }}" class="city" value="{{ i }}" name="city[]">
+                                <label for="scales{{ i }}">{{i}}</label>
+
+                                <br>
+
                                 <input type="button" class="btn btn-success" id="btnedit" value="Submit">
                             </form>
 
@@ -404,7 +398,7 @@
 
                                 </tr>
                             </thead>
-                            <tbody id="tr">
+                            <tbody id="tbody">
                                 {% for i in data %}
                                 <tr>
                                     <td>{{i.fname}}</td>
@@ -462,69 +456,49 @@
 
 
 
-            //for filter by 4 Types
             $("#btnedit").click(function () {
-                output = ''
-                console.log("click")
+                let stateLst = []
+                $('.state:checked').each(function () {
+                    stateLst.push($(this).val());
+                });
+                console.log(stateLst)
 
-                let st = $("#state_id").val()
-                console.log(state_id, "state")
-                let ct = $("#city_id").val()
-                console.log(city_id, "city")
-                let em = $("#email_id").val()
-                console.log(email_id, "email")
-                let dt = $("#date_id").val()
-                console.log(date_id, "date")
-
-
+                let cityLst = []
+                $('.city:checked').each(function () {
+                    cityLst.push($(this).val());
+                });
+                console.log(cityLst)
 
                 $.ajax({
                     url: "{% url 'getdata' %}",
                     method: "POST",
                     data: {
-                        'state': st,
-                        'city': ct,
-                        'email': em,
-                        'date': dt
+                        'states[]': stateLst
+
+
                     },
                     success: function (resp) {
-                        x = resp.data;
-                        console.log(x);
+                        x = resp.finalarea;
                         if (resp.status == 'save') {
-                            for (i = 0; i < x
-                                .length; i++) {
+                            for (i = 0; i < x.length; i++) {
                                 output += `
+                             <label for="scales">${x[i].city}</label>
 
-                                <tr>
-                                    <td>${x[i].fname}</td>
-                                    <td>${x[i].mobile}</td>
-                                    <td>${x[i].state}</td>
-                                    <td>${x[i].city}</td>
-                                    <td>${x[i].order_number}</td>
-                                    <td>${x[i].order_date}</td>
-                                    <td>${x[i].order_price}</td>
-                                    <td>${x[i].product_name}</td>
-                                    <td>${x[i].product_price}</td>
-                                </tr>
-                            `;
+                         `;
                             }
 
-                            $("#tr").html(output);
+                            $(".city").html(output);
                         }
                         if (resp.status == 0) {
-                            console.log(
-                                "enable to get data"
-                            )
+                            alert("Unable To Get Data");
                         }
                     }
 
-
                 });
-            })
+            });
 
         });
     </script>
-
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

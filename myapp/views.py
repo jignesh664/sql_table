@@ -1,4 +1,6 @@
+from django.core import serializers
 from django.db.models import query
+from django.db.models.expressions import Expression
 from django.shortcuts import render,redirect
 from .models import Customer,Product,Order
 from django.http.response import Http404, HttpResponse, JsonResponse
@@ -7,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 from django.core.serializers import serialize
 
-
+from django.contrib import messages
 
 
 
@@ -32,13 +34,40 @@ def index(request):
     c=Customer.objects.all()
     o=Order.objects.all()
     # for remove dublicates values 
-    records =Customer.objects.filter().values('state').distinct()
+    records = Customer.objects.filter().values('state').distinct()
+    records = [x['state'] for x in records]
     citys =Customer.objects.filter().values('city').distinct()
-    params={'c':c,'o':o,'records':records,'citys':citys}
+    citys=[y['city'] for y in citys]
+    #print(records)
+    params={'c':c,'o':o,'records': records,'citys':citys}
     return render (request,'index.html',params)
+   
 
 
-# for using Row Querys
+
+@csrf_exempt
+def getdata(request):
+    if request.method == "POST":
+        state = request.POST.getlist('states[]')
+
+        gtcity=Customer.objects.getlist('city[]')
+        
+        finalarea = []
+        for i in gtcity:
+            finalarea.append({'name':i.name,'id':i.id})
+              
+        return JsonResponse({'status':'save','finalstate':finalarea}, safe = False)  
+    else:
+        return JsonResponse({'status':0 ,'message': 'Something went wrong.!'}, safe = False) 
+
+
+
+
+
+
+
+
+'''# for using Row Querys
 @csrf_exempt
 def getdata(request):
     if request.method=="POST":
@@ -59,16 +88,33 @@ def getdata(request):
 
         date = request.POST['date']
         if(date):
-            allConditions += f"AND c.date = '{date}'"  
-
-        print(allConditions)           
+            allConditions += f"AND c.date = '{date}'"            
 
         querys=f"select c.fname, c.mobile, c.state, c.city, o.order_number, o.order_date, o.order_price, p.product_name, p.product_price from myapp_customer as c LEFT JOIN myapp_order as o ON c.id=o.id LEFT JOIN myapp_product as p ON p.id=c.id WHERE 1 = 1 {allConditions};"
         data=runsql(querys)
+        #print(querys)
        
         return JsonResponse({'status':'save','data':data}, safe = False)  
     else:
         return JsonResponse({'status':0})
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -91,10 +137,8 @@ def getdata(request):
     else:
         return JsonResponse({'status':0})
 
-'''
 
-
-'''for using ORM Quetys
+for using ORM Quetys
 def getdata(request):
     if request.method=="POST":
         customers=Customer.objects.filter(state=request.POST['state'])
