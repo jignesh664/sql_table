@@ -44,21 +44,75 @@ def index(request):
    
 
 
+@csrf_exempt
+def getcity(request):
+    if request.method=="POST":
+        gtstate=Customer.objects.filter(state=request.POST['state']).distinct() 
+        finalCitys = []
+        for i in gtstate:
+            finalCitys.append({'city': i.city}) 
+        #print(finalCitys)    
+        return JsonResponse({'status':'save','finalCitys':finalCitys}, safe = False)  
+        #return JsonResponse(serializers.serialize('json', gtcity), safe = False)
+    else:
+        return JsonResponse({'status':0})
+
+
+
+
+
 
 @csrf_exempt
 def getdata(request):
     if request.method == "POST":
-        state = request.POST.getlist('states[]')
+        allConditions = ""
 
-        gtcity=Customer.objects.getlist('city[]')
+        state = request.POST.getlist('state[]')
+        print(state)
+        if(state):
         
-        finalarea = []
-        for i in gtcity:
-            finalarea.append({'name':i.name,'id':i.id})
+            allConditions += f"AND c.state ='state'"
+        print(allConditions)    
+       
+        city=request.POST.getlist('city[]')
+        
+        if(city):
+            allConditions += f"AND c.city = 'city[]'"  
+      
+
+        date=request.POST.getlist('date[]')
+        if(date):
+            allConditions += f"AND c.date = 'date[]'" 
+       
+        querys=f"select c.fname, c.mobile, c.state, c.city, o.order_number, o.order_date, o.order_price, p.product_name, p.product_price from myapp_customer as c LEFT JOIN myapp_order as o ON c.id=o.id LEFT JOIN myapp_product as p ON p.id=c.id WHERE 1 = 1 {allConditions};"
+        data=runsql(querys)   
+        print(querys) 
               
-        return JsonResponse({'status':'save','finalstate':finalarea}, safe = False)  
+        return JsonResponse({'status':'save','data':serialize('json',data)}, safe = False)  
     else:
         return JsonResponse({'status':0 ,'message': 'Something went wrong.!'}, safe = False) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

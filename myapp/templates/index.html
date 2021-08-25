@@ -19,6 +19,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
 
+
     <!--for dropdown-->
 
     <style>
@@ -342,8 +343,12 @@
         }
     </style>
 
+
+
     <title>DBCL</title>
 </head>
+
+
 
 <body>
     <div class="container p-30">
@@ -357,18 +362,30 @@
 
                                 <h4 style="color: chocolate;">State</h4>
                                 {% for i in records %}
-                                <input type="checkbox" id="scales{{ i }}" class="state" value="{{ i }}" name="state[]">
+                                <input type="checkbox" id="state" class="state" value="{{ i }}" name="state[]">
                                 <label for="scales{{ i }}">{{i}}</label>
                                 {% endfor %}
 
 
                                 <h4 style="color: chocolate;">City</h4>
-
-                                <input type="checkbox" id="citys{{ i }}" class="city" value="{{ i }}" name="city[]">
-                                <label for="scales{{ i }}">{{i}}</label>
-
+                                <div id="cityHolder">
+                                </div>
                                 <br>
 
+                                <h4 style="color: chocolate;">Date</h4>
+                                <ul>
+                                    <div class="col-md-2">Start Date<input type="date" class="dates" name="date[]"
+                                            value="" min="2015-01-01" max="2025-12-31">
+                                    </div>
+
+                                    <div class="col-md-2">End Date<input type="date" class="dates" name="date[]"
+                                            value="" min="2015-01-01" max="2025-12-31">
+                                    </div>
+                                </ul>&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+                                <br>
+                                <br>
+                                <br>
+                                <br>
                                 <input type="button" class="btn btn-success" id="btnedit" value="Submit">
                             </form>
 
@@ -398,7 +415,7 @@
 
                                 </tr>
                             </thead>
-                            <tbody id="tbody">
+                            <tbody class="tbody">
                                 {% for i in data %}
                                 <tr>
                                     <td>{{i.fname}}</td>
@@ -455,8 +472,41 @@
 
 
 
+            $('.state').change(function () {
+                output = "";
+                let id = $(this).val();
+                console.log(id, "data")
+
+                $.ajax({
+                    url: "{% url 'getcity' %}",
+                    method: "POST",
+                    data: {
+                        'state': id
+                    },
+                    success: function (resp) {
+                        x = resp.finalCitys;
+                        if (resp.status == 'save') {
+                            for (i = 0; i < x.length; i++) {
+                                output += `
+                                
+                                <input type="checkbox" class="city" id="city${x[i].city}" value="${x[i].city}">
+                                <label for="city${x[i].city}"> ${x[i].city}
+                                </label>
+                                `;
+                            }
+                            $("#cityHolder").html(output);
+                        }
+                        if (resp.status == 0) {
+                            console.log("enable to get citys ")
+                        }
+                    }
+
+                });
+            });
+
 
             $("#btnedit").click(function () {
+                output = "";
                 let stateLst = []
                 $('.state:checked').each(function () {
                     stateLst.push($(this).val());
@@ -469,25 +519,42 @@
                 });
                 console.log(cityLst)
 
+                let dateLst = []
+                $('.dates').each(function () {
+                    dateLst.push($(this).val());
+                });
+                console.log(dateLst)
+
                 $.ajax({
                     url: "{% url 'getdata' %}",
                     method: "POST",
                     data: {
-                        'states[]': stateLst
-
+                        'state[]': stateLst,
+                        'city[]': cityLst,
+                        'date[]': dateLst
 
                     },
                     success: function (resp) {
-                        x = resp.finalarea;
+                        x = resp.data;
                         if (resp.status == 'save') {
                             for (i = 0; i < x.length; i++) {
                                 output += `
-                             <label for="scales">${x[i].city}</label>
+                                <tr>
+                                    <td>"${x[i].fname}"</td>
+                                    <td>"${x[i].mobile}"</td>
+                                    <td>"${x[i].state}"</td>
+                                    <td>"${x[i].city}"</td>
+                                    <td>"${x[i].order_number}"</td>
+                                    <td>"${x[i].order_date}"</td>
+                                    <td>"${x[i].order_price}"</td>
+                                    <td>"${x[i].product_name}"</td>
+                                    <td>"${x[i].product_price}"</td>
+                                </tr>
 
                          `;
                             }
 
-                            $(".city").html(output);
+                            $(".tbody").html(output);
                         }
                         if (resp.status == 0) {
                             alert("Unable To Get Data");
@@ -495,8 +562,9 @@
                     }
 
                 });
-            });
 
+
+            });
         });
     </script>
 

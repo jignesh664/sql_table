@@ -10,8 +10,8 @@ class Customer(models.Model):
     mobile=models.CharField(max_length=13)
     address=models.TextField()
     date=models.DateField()
-    state=models.CharField(max_length=100,default='SOME STRING')
-    city=models.CharField(max_length=100,default='SOME STRING')
+    state=models.CharField(max_length=100,default='')
+    city=models.CharField(max_length=100,default='')
     is_active=models.BooleanField(default=False)
 
 
