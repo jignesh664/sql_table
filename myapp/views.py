@@ -1,6 +1,6 @@
 from django.core import serializers
 from django.db.models import query
-from django.db.models.expressions import Expression
+from django.db.models.expressions import F, Expression
 from django.shortcuts import render,redirect
 from .models import Customer,Product,Order
 from django.http.response import Http404, HttpResponse, JsonResponse
@@ -13,7 +13,10 @@ from django.contrib import messages
 
 
 
+
+
 # Create your views here.
+
 
 # for connect db
 def runsql(q):
@@ -36,10 +39,10 @@ def index(request):
     # for remove dublicates values 
     records = Customer.objects.filter().values('state').distinct()
     records = [x['state'] for x in records]
-    citys =Customer.objects.filter().values('city').distinct()
-    citys=[y['city'] for y in citys]
+    #citys =Customer.objects.filter().values('city')
+    #citys=[y['city'] for y in citys]
     #print(records)
-    params={'c':c,'o':o,'records': records,'citys':citys}
+    params={'c':c,'o':o,'records': records}
     return render (request,'index.html',params)
    
 
@@ -47,10 +50,10 @@ def index(request):
 @csrf_exempt
 def getcity(request):
     if request.method=="POST":
-        gtstate=Customer.objects.filter(state=request.POST['state']).distinct() 
+        gtstate=Customer.objects.filter(state=request.POST['state'])
         finalCitys = []
         for i in gtstate:
-            finalCitys.append({'city': i.city}) 
+            finalCitys.append({'city': i.city})
         #print(finalCitys)    
         return JsonResponse({'status':'save','finalCitys':finalCitys}, safe = False)  
         #return JsonResponse(serializers.serialize('json', gtcity), safe = False)
@@ -58,41 +61,37 @@ def getcity(request):
         return JsonResponse({'status':0})
 
 
-
-
-
-
+#data get through using row querys 
 @csrf_exempt
 def getdata(request):
     if request.method == "POST":
         allConditions = ""
 
         state = request.POST.getlist('state[]')
-        print(state)
+        #print(state)
+        #print(tuple(state))
+        finalState = str(tuple(state)) if len(state) > 1 else str(tuple(state)).replace(',', '')
         if(state):
-        
-            allConditions += f"AND c.state ='state'"
-        print(allConditions)    
-       
-        city=request.POST.getlist('city[]')
-        
-        if(city):
-            allConditions += f"AND c.city = 'city[]'"  
-      
+            allConditions += f"AND c.state IN {finalState}"    
+    
 
-        date=request.POST.getlist('date[]')
+        city=request.POST.getlist('city[]')
+        finalCity = str(tuple(city)) if len(city) > 1 else str(tuple(city)).replace(',', '')
+        if(city):
+            allConditions += f"AND c.city IN {finalCity}"
+
+        #both date join throgh between in query
+        tdate=request.POST['tdate']
+        date=request.POST['fdate']
         if(date):
-            allConditions += f"AND c.date = 'date[]'" 
+            allConditions += f"AND DATE(c.date) BETWEEN DATE('{date}') AND DATE('{tdate}')"
+
        
         querys=f"select c.fname, c.mobile, c.state, c.city, o.order_number, o.order_date, o.order_price, p.product_name, p.product_price from myapp_customer as c LEFT JOIN myapp_order as o ON c.id=o.id LEFT JOIN myapp_product as p ON p.id=c.id WHERE 1 = 1 {allConditions};"
-        data=runsql(querys)   
-        print(querys) 
-              
-        return JsonResponse({'status':'save','data':serialize('json',data)}, safe = False)  
+        data=runsql(querys)      
+        return JsonResponse({'status':'save','data':data}, safe = False)  
     else:
         return JsonResponse({'status':0 ,'message': 'Something went wrong.!'}, safe = False) 
-
-
 
 
 
