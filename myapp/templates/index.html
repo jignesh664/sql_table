@@ -385,7 +385,7 @@
                         <div class="col-sm-8 add_flex">
                             <div class="form-group searchInput">
                                 <label for="email">Search:</label>
-                                <input type="search" class="form-control" id="filterbox" placeholder=" ">
+                                <input type="search" class="form-control" id="filterbox">
                             </div>
                         </div>
                     </div>
@@ -435,6 +435,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.14/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+
     <script>
         $(document).ready(function () {
             $("#my_date_picker").datepicker({
@@ -445,11 +447,24 @@
             });
 
             var dataTable = $('#filtertable').DataTable({
+
                 "pageLength": 5,
                 'aoColumnDefs': [{
                     'bSortable': false,
                     'aTargets': ['nosort'],
                 }],
+
+
+                scrollY: "500px",
+                scrollX: true,
+                scrollCollapse: true,
+                columnDefs: [{
+                    width: '20%',
+                    targets: 0
+                }],
+                fixedColumns: true,
+
+
                 columnDefs: [{
                     type: 'date-dd-mm-yyyy',
                     aTargets: [5]
@@ -471,23 +486,35 @@
                 "dom": '<"top">ct<"top"p><"clear">'
             });
 
+
+
             $("#filterbox").keyup(function () {
                 dataTable.search(this.value).draw();
+
             });
+
 
             $('.state').change(function () {
                 output = "";
-                let id = $(this).val();
-                console.log(id, "data")
+                // used below for only single state required alaternet
+                //let id = $(this).val();
+                // console.log(id, "data")
+
+                let stateLst = []
+                $('.state:checked').each(function () {
+                    stateLst.push($(this).val());
+                });
+                console.log(stateLst)
 
                 $.ajax({
                     url: "{% url 'getcity' %}",
                     method: "POST",
                     data: {
-                        'state': id
+                        'state[]': stateLst
                     },
                     success: function (resp) {
-                        x = resp.finalCitys;
+                        x = resp.data;
+                        console.log(x)
                         if (resp.status == 'save') {
                             for (i = 0; i < x.length; i++) {
                                 output += `
@@ -498,6 +525,7 @@
                                 `;
                             }
                             $("#cityHolder").html(output);
+
                         }
                         if (resp.status == 0) {
                             console.log("enable to get citys ")
@@ -506,6 +534,40 @@
 
                 });
             });
+
+
+            // for USING ORM VIEWS
+            /* $('.state').change(function () {
+                 output = "";
+                 let id = $(this).val();
+                 console.log(id, "data")
+
+                 $.ajax({
+                     url: "{% url 'getcity' %}",
+                     method: "POST",
+                     data: {
+                         'state': id
+                     },
+                     success: function (resp) {
+                         x = resp.finalCitys;
+                         if (resp.status == 'save') {
+                             for (i = 0; i < x.length; i++) {
+                                 output += `
+                                 
+                                 <input type="checkbox" class="city" id="city${x[i].city}" value="${x[i].city}">
+                                 <label for="city${x[i].city}"> ${x[i].city}
+                                 </label>
+                                 `;
+                             }
+                             $("#cityHolder").html(output);
+                         }
+                         if (resp.status == 0) {
+                             console.log("enable to get citys ")
+                         }
+                     }
+
+                 });
+             }); */
 
 
             $("#btnedit").click(function () {
@@ -548,15 +610,15 @@
                             for (i = 0; i < x.length; i++) {
                                 output += `
                                 <tr>
-                                    <td>"${x[i].fname}"</td>
-                                    <td>"${x[i].mobile}"</td>
-                                    <td>"${x[i].state}"</td>
-                                    <td>"${x[i].city}"</td>
-                                    <td>"${x[i].order_number}"</td>
-                                    <td>"${x[i].order_date}"</td>
-                                    <td>"${x[i].order_price}"</td>
-                                    <td>"${x[i].product_name}"</td>
-                                    <td>"${x[i].product_price}"</td>
+                                    <td>${x[i].fname}</td>
+                                    <td>${x[i].mobile}</td>
+                                    <td>${x[i].state}</td>
+                                    <td>${x[i].city}</td>
+                                    <td>${x[i].order_number}</td>
+                                    <td>${x[i].order_date}</td>
+                                    <td>${x[i].order_price}</td>
+                                    <td>${x[i].product_name}</td>
+                                    <td>${x[i].product_price}</td>
                                 </tr>
 
                          `;

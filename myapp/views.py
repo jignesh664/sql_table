@@ -47,7 +47,58 @@ def index(request):
    
 
 
+
+
 @csrf_exempt
+def getcity(request):
+    if request.method=="POST":
+        allConditions = ""
+        city = request.POST.getlist('state[]')
+        #print(city)
+        finalCity = str(tuple(city)) if len(city) > 1 else str(tuple(city)).replace(',', '')
+        if(city):
+            allConditions += f"AND state IN {finalCity}" 
+
+        querys=f" SELECT DISTINCT city FROM myapp_customer WHERE 1 = 1 {allConditions};"
+        data=runsql(querys)
+        #print(querys)
+        #print(data)
+        return JsonResponse({'status':'save','data':data}, safe = False)  
+    else:
+        return JsonResponse({'status':0})
+
+
+
+
+#For Getting city from RoW Querys              
+'''@csrf_exempt
+def getcity(request):
+    if request.method=="POST":
+        allConditions = ""
+        city = request.POST.getlist('state[]')
+        print(city)
+        finalCity = str(tuple(city)) if len(city) > 1 else str(tuple(city)).replace(',', '')
+        if(city):
+            allConditions += f"AND state IN {finalCity}" 
+
+        querys=f" SELECT DISTINCT city FROM myapp_customer WHERE 1 = 1 {allConditions};"
+        data=runsql(querys)
+        print(querys)
+        print(data)
+        return JsonResponse({'status':'save','data':data}, safe = False)  
+    else:
+        return JsonResponse({'status':0})'''
+
+
+
+
+
+
+
+
+
+'''@csrf_exempt
+#Get data through ORM Methods
 def getcity(request):
     if request.method=="POST":
         gtstate=Customer.objects.filter(state=request.POST['state'])
@@ -58,7 +109,7 @@ def getcity(request):
         return JsonResponse({'status':'save','finalCitys':finalCitys}, safe = False)  
         #return JsonResponse(serializers.serialize('json', gtcity), safe = False)
     else:
-        return JsonResponse({'status':0})
+        return JsonResponse({'status':0})'''
 
 
 #data get through using row querys 
@@ -91,7 +142,14 @@ def getdata(request):
         data=runsql(querys)      
         return JsonResponse({'status':'save','data':data}, safe = False)  
     else:
-        return JsonResponse({'status':0 ,'message': 'Something went wrong.!'}, safe = False) 
+        return JsonResponse({'status':0 ,'message': 'Something went wrong.!'}, safe = False)
+
+
+
+
+
+
+
 
 
 
