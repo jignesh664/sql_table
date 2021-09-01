@@ -360,6 +360,7 @@
                             <form name="customer" id="form1" method="POST" action="{% url 'getdata' %}">
 
                                 <h4 style="color: chocolate;">State</h4>
+
                                 {% for i in records %}
                                 <input type="checkbox" id="state" class="state" value="{{ i }}" name="state[]">
                                 <label for="scales{{ i }}">{{i}}</label>
@@ -371,11 +372,10 @@
                                 </div>
                                 <br>
 
-                                <h4 style="color: chocolate;">Date</h4>
+                                <h4 style="color: chocolate;">Customer Rg.Date</h4>
                                 <p>From Date: <input type="text" id="my_date_picker" name="fdate"></p>
-                                <p>To Date: <input type="text" id="my_date_picker1" name="tdate"></p>
-
-
+                                <p>To Date: &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="my_date_picker1"
+                                        name="tdate"></p>
 
                                 <input type="button" class="btn btn-success" id="btnedit" value="Submit">
                             </form>
@@ -390,14 +390,15 @@
                         </div>
                     </div>
                     <div class="overflow-x">
-                        <table style="width:100%;" id="filtertable" class="table cust-datatable dataTable no-footer">
+                        <table style="width:100%;" id="filtertable" data-column="1"
+                            class="table cust-datatable dataTable no-footer" border="1">
                             <thead>
                                 <tr>
 
                                     <th style="min-width:100px;">First Name</th>
                                     <th style="min-width:100px;">Mobile</th>
                                     <th style="min-width:100px;">State</th>
-                                    <th style="min-width:100px;">City</th>
+                                    <th id="city" style="min-width:100px; display:none;">City</th>
                                     <th style="min-width:100px;">Order No.</th>
                                     <th style="min-width:100px;">Order date</th>
                                     <th style="min-width:100px;">Order Price</th>
@@ -412,7 +413,7 @@
                                     <td>{{i.fname}}</td>
                                     <td>{{i.mobile}}</td>
                                     <td>{{i.state}}</td>
-                                    <td>{{i.city}}</td>
+                                    <td id="city" style="display:'';">{{i.city}}</td>
                                     <td>{{i.order_number}}</td>
                                     <td>{{i.order_date}}</td>
                                     <td>{{i.order_price}}</td>
@@ -447,14 +448,11 @@
             });
 
             var dataTable = $('#filtertable').DataTable({
-
                 "pageLength": 5,
                 'aoColumnDefs': [{
                     'bSortable': false,
                     'aTargets': ['nosort'],
                 }],
-
-
                 scrollY: "500px",
                 scrollX: true,
                 scrollCollapse: true,
@@ -463,7 +461,6 @@
                     targets: 0
                 }],
                 fixedColumns: true,
-
 
                 columnDefs: [{
                     type: 'date-dd-mm-yyyy',
@@ -483,15 +480,17 @@
                 ],
                 "order": false,
                 "bLengthChange": false,
-                "dom": '<"top">ct<"top"p><"clear">'
+                "dom": '<"top">ct<"top"p><"clear">',
+
+
+
             });
-
-
 
             $("#filterbox").keyup(function () {
                 dataTable.search(this.value).draw();
 
             });
+
 
 
             $('.state').change(function () {
@@ -503,14 +502,16 @@
                 let stateLst = []
                 $('.state:checked').each(function () {
                     stateLst.push($(this).val());
+
                 });
-                console.log(stateLst)
+                // console.log(stateLst)
 
                 $.ajax({
                     url: "{% url 'getcity' %}",
                     method: "POST",
                     data: {
                         'state[]': stateLst
+
                     },
                     success: function (resp) {
                         x = resp.data;
@@ -567,7 +568,7 @@
                      }
 
                  });
-             }); */
+            }); */
 
 
             $("#btnedit").click(function () {
@@ -575,24 +576,30 @@
                 let stateLst = []
                 $('.state:checked').each(function () {
                     stateLst.push($(this).val());
+                    if ('.state:checked') {
+                        $("#city").hide();
+
+                    }
                 });
-                console.log(stateLst)
+                //console.log(stateLst)
 
                 let cityLst = []
                 $('.city:checked').each(function () {
                     cityLst.push($(this).val());
-                });
-                console.log(cityLst)
+                    if ('.city:checked') {
+                        $("#city").show();
+                    }
 
+                });
+                //console.log(cityLst)
 
                 $("#my_date_picker").datepicker();
                 let fdt = $("#my_date_picker").val()
-                console.log(fdt)
+                //console.log(fdt)
 
                 $("#my_date_picker1").datepicker();
                 let tdt = $("#my_date_picker1").val()
-                console.log(tdt)
-
+                //console.log(tdt)
 
                 $.ajax({
                     url: "{% url 'getdata' %}",
@@ -601,7 +608,7 @@
                         'state[]': stateLst,
                         'city[]': cityLst,
                         'fdate': fdt,
-                        'tdate': tdt,
+                        'tdate': tdt
 
                     },
                     success: function (resp) {
@@ -613,7 +620,7 @@
                                     <td>${x[i].fname}</td>
                                     <td>${x[i].mobile}</td>
                                     <td>${x[i].state}</td>
-                                    <td>${x[i].city}</td>
+                                    <td id="city" style="display:none;">${x[i].city}</td>
                                     <td>${x[i].order_number}</td>
                                     <td>${x[i].order_date}</td>
                                     <td>${x[i].order_price}</td>
@@ -623,7 +630,6 @@
 
                          `;
                             }
-
                             $(".tbody").html(output);
                         }
                         if (resp.status == 0) {
@@ -635,8 +641,6 @@
         });
     </script>
     <script src="{% static 'js/main.js' %}"></script>
-
-
 
 </body>
 

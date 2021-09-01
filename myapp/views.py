@@ -95,8 +95,6 @@ def getcity(request):
 
 
 
-
-
 '''@csrf_exempt
 #Get data through ORM Methods
 def getcity(request):
