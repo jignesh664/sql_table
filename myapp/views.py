@@ -115,14 +115,15 @@ def getcity(request):
 def getdata(request):
     if request.method == "POST":
         allConditions = ""
+        
 
         state = request.POST.getlist('state[]')
         #print(state)
         #print(tuple(state))
         finalState = str(tuple(state)) if len(state) > 1 else str(tuple(state)).replace(',', '')
         if(state):
-            allConditions += f"AND c.state IN {finalState}"    
-    
+            allConditions += f"AND c.state IN {finalState}"
+
 
         city=request.POST.getlist('city[]')
         finalCity = str(tuple(city)) if len(city) > 1 else str(tuple(city)).replace(',', '')
@@ -143,7 +144,7 @@ def getdata(request):
         return JsonResponse({'status':0 ,'message': 'Something went wrong.!'}, safe = False)
 
 
-
+    
 
 
 

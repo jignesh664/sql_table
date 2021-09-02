@@ -398,7 +398,7 @@
                                     <th style="min-width:100px;">First Name</th>
                                     <th style="min-width:100px;">Mobile</th>
                                     <th style="min-width:100px;">State</th>
-                                    <th id="city" style="min-width:100px; display:none;">City</th>
+                                    <th id="cityh" style="min-width:100px;">City</th>
                                     <th style="min-width:100px;">Order No.</th>
                                     <th style="min-width:100px;">Order date</th>
                                     <th style="min-width:100px;">Order Price</th>
@@ -413,7 +413,7 @@
                                     <td>{{i.fname}}</td>
                                     <td>{{i.mobile}}</td>
                                     <td>{{i.state}}</td>
-                                    <td id="city" style="display:'';">{{i.city}}</td>
+                                    <td>{{i.city}}</td>
                                     <td>{{i.order_number}}</td>
                                     <td>{{i.order_date}}</td>
                                     <td>{{i.order_price}}</td>
@@ -482,15 +482,13 @@
                 "bLengthChange": false,
                 "dom": '<"top">ct<"top"p><"clear">',
 
-
-
             });
+
 
             $("#filterbox").keyup(function () {
                 dataTable.search(this.value).draw();
 
             });
-
 
 
             $('.state').change(function () {
@@ -576,21 +574,24 @@
                 let stateLst = []
                 $('.state:checked').each(function () {
                     stateLst.push($(this).val());
-                    if ('.state:checked') {
-                        $("#city").hide();
-
-                    }
                 });
                 //console.log(stateLst)
+
 
                 let cityLst = []
                 $('.city:checked').each(function () {
                     cityLst.push($(this).val());
-                    if ('.city:checked') {
-                        $("#city").show();
-                    }
-
                 });
+
+                if (cityLst.length != 0) {
+                    $("#cityh").show();
+                    $(".allf").show();
+                } else {
+                    $("#cityh").hide();
+                    $(".allf").hide();
+                }
+                console.log(cityLst.length);
+
                 //console.log(cityLst)
 
                 $("#my_date_picker").datepicker();
@@ -615,17 +616,27 @@
                         x = resp.data;
                         if (resp.status == 'save') {
                             for (i = 0; i < x.length; i++) {
+
                                 output += `
+                                
                                 <tr>
                                     <td>${x[i].fname}</td>
                                     <td>${x[i].mobile}</td>
                                     <td>${x[i].state}</td>
-                                    <td id="city" style="display:none;">${x[i].city}</td>
+
+                                         
+                                if (cityLst.length !=0)
+                                    <td class="allf" style="display:'';">${x[i].city}</td>
+                                } else {
+                                    <td class="allf"  style="display:none;">${x[i].city}</td>
+                                }
+                                
                                     <td>${x[i].order_number}</td>
                                     <td>${x[i].order_date}</td>
                                     <td>${x[i].order_price}</td>
                                     <td>${x[i].product_name}</td>
                                     <td>${x[i].product_price}</td>
+
                                 </tr>
 
                          `;
