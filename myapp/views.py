@@ -48,7 +48,6 @@ def index(request):
 
 
 
-
 @csrf_exempt
 def getcity(request):
     if request.method=="POST":
@@ -137,7 +136,7 @@ def getdata(request):
             allConditions += f"AND DATE(c.date) BETWEEN DATE('{date}') AND DATE('{tdate}')"
 
        
-        querys=f"select c.fname, c.mobile, c.state, c.city, o.order_number, o.order_date, o.order_price, p.product_name, p.product_price from myapp_customer as c LEFT JOIN myapp_order as o ON c.id=o.id LEFT JOIN myapp_product as p ON p.id=c.id WHERE 1 = 1 {allConditions};"
+        querys=f"select c.fname, c.mobile, c.state, c.city, o.order_number, o.order_date, o.order_price, p.product_name, p.product_price from myapp_customer  as c LEFT JOIN myapp_order as o ON c.id=o.id LEFT JOIN myapp_product as p ON p.id=c.id  WHERE 1 = 1 {allConditions} order by state,city ASC;"
         data=runsql(querys)      
         return JsonResponse({'status':'save','data':data}, safe = False)  
     else:
@@ -146,9 +145,8 @@ def getdata(request):
 
     
 
-
-
-
+   
+   
 
 
 

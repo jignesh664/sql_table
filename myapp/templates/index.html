@@ -392,35 +392,24 @@
                     <div class="overflow-x">
                         <table style="width:100%;" id="filtertable" data-column="1"
                             class="table cust-datatable dataTable no-footer" border="1">
-                            <thead>
+                            <thead id="theads">
                                 <tr>
 
-                                    <th style="min-width:100px;">First Name</th>
-                                    <th style="min-width:100px;">Mobile</th>
-                                    <th style="min-width:100px;">State</th>
-                                    <th id="cityh" style="min-width:100px;">City</th>
-                                    <th style="min-width:100px;">Order No.</th>
-                                    <th style="min-width:100px;">Order date</th>
-                                    <th style="min-width:100px;">Order Price</th>
-                                    <th style="min-width:100px;">Product Name</th>
-                                    <th style="min-width:100px;">Product Price</th>
+                                    <th style="min-width:100px; display: '';" id="fname">First Name</th>
+                                    <th style="min-width:100px; display: '';" id="mobileh">Mobile</th>
+                                    <th style="min-width:100px; display:'';" id="stateh">State</th>
+                                    <th style="min-width:100px; display:none;" id="cityh">City</th>
+                                    <th style="min-width:100px; display: '';" id="ordern">Order No.</th>
+                                    <th style="min-width:100px; display: '';" id="orderd">Order date</th>
+                                    <th style="min-width:100px; display: '';" id="orderp">Order Price</th>
+                                    <th style="min-width:100px; display: '';" id="productn">Product Name</th>
+                                    <th style="min-width:100px; display: '';" id="productp ">Product Price</th>
+
 
                                 </tr>
                             </thead>
                             <tbody class="tbody">
-                                {% for i in data %}
-                                <tr>
-                                    <td>{{i.fname}}</td>
-                                    <td>{{i.mobile}}</td>
-                                    <td>{{i.state}}</td>
-                                    <td>{{i.city}}</td>
-                                    <td>{{i.order_number}}</td>
-                                    <td>{{i.order_date}}</td>
-                                    <td>{{i.order_price}}</td>
-                                    <td>{{i.product_name}}</td>
-                                    <td>{{i.product_price}}</td>
-                                </tr>
-                                {% endfor %}
+
                             </tbody>
                         </table>
                     </div>
@@ -448,9 +437,11 @@
             });
 
             var dataTable = $('#filtertable').DataTable({
+
+
                 "pageLength": 5,
                 'aoColumnDefs': [{
-                    'bSortable': false,
+                    'bSortable': true,
                     'aTargets': ['nosort'],
                 }],
                 scrollY: "500px",
@@ -482,11 +473,13 @@
                 "bLengthChange": false,
                 "dom": '<"top">ct<"top"p><"clear">',
 
-            });
 
+
+            });
 
             $("#filterbox").keyup(function () {
                 dataTable.search(this.value).draw();
+                console.log(this.value, "search")
 
             });
 
@@ -522,6 +515,7 @@
                                 <label for="city${x[i].city}"> ${x[i].city}
                                 </label>
                                 `;
+
                             }
                             $("#cityHolder").html(output);
 
@@ -570,6 +564,9 @@
 
 
             $("#btnedit").click(function () {
+                $('#filtertable').DataTable().destroy();
+
+
                 output = "";
                 let stateLst = []
                 $('.state:checked').each(function () {
@@ -583,13 +580,13 @@
                     cityLst.push($(this).val());
                 });
 
-                if (cityLst.length != 0) {
+                /*if (cityLst.length != 0) {
                     $("#cityh").show();
-                    $(".allf").show();
+                    $(".cityh").show();
                 } else {
                     $("#cityh").hide();
-                    $(".allf").hide();
-                }
+                    $(".cityh").hide();
+                } */
                 console.log(cityLst.length);
 
                 //console.log(cityLst)
@@ -613,40 +610,49 @@
 
                     },
                     success: function (resp) {
+
                         x = resp.data;
                         if (resp.status == 'save') {
+                            $('#thead').html(`
+                            <tr>
+                                <th style="min-width:100px; display:'';" id="fname"></th>
+                                <th style="min-width:100px; display:'';" id="mobileh"></th>
+                                <th style="min-width:100px; display:'';" id="stateh"></th>
+                                <th style="min-width:100px; display:none;" id="cityh"></th>
+                                <th style="min-width:100px; display:'';" id="ordern"></th>
+                                <th style="min-width:100px; display:'';" id="orderd"></th>
+                                <th style="min-width:100px; display:'';" id="orderp"></th>
+                                <th style="min-width:100px; display:'';" id="productn"></th>
+                                <th style="min-width:100px; display:'';" id="productp"></th>
+                            </tr>
+                            `);
                             for (i = 0; i < x.length; i++) {
-
                                 output += `
-                                
-                                <tr>
-                                    <td>${x[i].fname}</td>
-                                    <td>${x[i].mobile}</td>
-                                    <td>${x[i].state}</td>
+                                    <tr>
+                                        <td id="fname">${x[i].fname}</td>
+                                        <td id="mobileh">${x[i].mobile}</td>
+                                        <td id="stateh">${x[i].state}</td>
+                                        <td class="cityh" style="display:none;">${x[i].city}</td>
+                                        <td id="ordern">${x[i].order_number}</td>
+                                        <td id="orderd">${x[i].order_date}</td>
+                                        <td id="orderd">${x[i].order_price}</td>
+                                        <td id="productn">${x[i].product_name}</td>
+                                        <td id="productp">${x[i].product_price}</td>
+                                    </tr>`;
 
-                                         
-                                if (cityLst.length !=0)
-                                    <td class="allf" style="display:'';">${x[i].city}</td>
-                                } else {
-                                    <td class="allf"  style="display:none;">${x[i].city}</td>
-                                }
-                                
-                                    <td>${x[i].order_number}</td>
-                                    <td>${x[i].order_date}</td>
-                                    <td>${x[i].order_price}</td>
-                                    <td>${x[i].product_name}</td>
-                                    <td>${x[i].product_price}</td>
-
-                                </tr>
-
-                         `;
                             }
                             $(".tbody").html(output);
-                        }
-                        if (resp.status == 0) {
+                        } else {
                             alert("No data available in table");
                         }
+
+                        if (cityLst.length != 0) {
+                            $('.cityh, #cityh').css('display', '');
+                        } else {
+                            $('.cityh, #cityh').css('display', 'none');
+                        }
                     }
+
                 });
             });
         });
